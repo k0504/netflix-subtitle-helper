@@ -1,81 +1,82 @@
-# 🎬 Netflix 字幕助手 v4.0
+# Netflix Subtitle Helper
 
-## ✨ 全新設計 - 直接拖動字幕!
+A Chrome / Edge extension (Manifest V3) that hides the native Netflix subtitle layer and renders subtitles in a custom overlay, so they can be repositioned, resized, selected as text and translated word by word. The current playback resolution is also displayed beneath the video title.
 
-### 🎯 v4.0 重大改進
-- ❌ **移除紅色圓圈按鈕** - 不再有阻擋視線的按鈕
-- ✅ **直接拖動字幕** - 滑鼠懸停在字幕上時,字幕會發光提示可拖動
-- ✅ **流暢的拖動體驗** - 不會卡住,隨時可以調整位置
-- ✅ **智能範圍限制** - 字幕永遠保持在影片範圍內
+## Features
 
----
+| Feature | Description |
+| --- | --- |
+| Repositionable subtitles | Drag the overlay anywhere in the viewport. The position is stored as a viewport percentage, so it holds across window resizing and fullscreen transitions. |
+| Adjustable size | Font size is controlled by a slider in the toolbar popup (20-80 px) and applied in real time. |
+| Selectable subtitle text | The overlay renders subtitles as ordinary selectable text rather than as a video layer. |
+| Word translation | Double-click a word in the subtitle to look it up (English to Traditional Chinese) through the MyMemory API and display the result in a popup. |
+| Playback quality display | The current resolution and its label, for example `1920x1080 (Full HD)`, are inserted beneath the video title and refreshed every two seconds. |
+| Persistent settings | Font size and position are stored in `chrome.storage.sync`. |
 
-## 🚀 如何使用
+## Installation
 
-### 1. 播放有字幕的影片
-開啟 Netflix 並播放任何有字幕的內容
+The extension is not published on any store; load it as an unpacked extension.
 
-### 2. 拖動字幕
-- **滑鼠懸停**在字幕上 → 字幕會發光,游標變成手型
-- **點擊並拖動**字幕到你想要的位置
-- **放開滑鼠**完成調整
+1. Clone or download this repository.
+2. Open `chrome://extensions/` or `edge://extensions/`.
+3. Enable **Developer mode**.
+4. Select **Load unpacked** and choose the repository directory.
+5. Reload any open Netflix tab.
 
-### 3. 視覺提示
-- **懸停時**: 白色光暈 (表示可拖動)
-- **拖動時**: 黃色光暈 (表示正在拖動)
+## Usage
 
----
+1. Play a title on Netflix with subtitles enabled in the player.
+2. The native subtitle layer is hidden and replaced by the custom overlay.
+3. Hover the overlay to confirm it is interactive, then drag it to a new position. The position is persisted when the drag ends.
+4. Double-click a word to display its translation. Clicking anywhere outside the subtitle and the translation popup dismisses the popup.
+5. Open the toolbar popup to adjust the font size, or to reset position and size to their defaults.
 
-## 📦 安裝步驟
+## Internal flags
 
-1. **解壓縮** `netflix-subtitle-helper-v4.0.zip`
-2. 打開 Edge 瀏覽器,前往 `edge://extensions/`
-3. 開啟右上角的 **「開發人員模式」**
-4. 點擊 **「載入解壓縮」**
-5. 選擇解壓後的 `netflix-subtitle-helper-v4` 資料夾
-6. 完成!重新開啟 Netflix 分頁即可使用
+Two flags are declared in [`config.js`](config.js). Both are read once at load time; changing either requires reloading the extension.
 
----
+| Flag | Values | Effect |
+| --- | --- | --- |
+| `LOG_LEVEL` | `off`, `error`, `info` (default), `verbose` | Console verbosity. Per-cue subtitle updates and drag coordinates are emitted at `verbose` only, so `info` produces no continuous output during playback. An unrecognised value falls back to `info`. |
+| `TRANSLATION_ENABLED` | `true` (default), `false` | When false, the translation module exports no-ops: no styles, no popup, no event listeners and no API requests. Disabling it should be accompanied by removing the MyMemory entry from `host_permissions` in `manifest.json` and by amending the feature list in `popup.html`. |
 
-## 🔄 從舊版升級
+Default font size and position are declared in the same file as `DEFAULTS`, which also serves as the complete `chrome.storage.sync` schema.
 
-如果你之前安裝過 v3.x 版本:
-1. 到 `edge://extensions/`
-2. 找到舊版 **「Netflix 字幕助手」**
-3. 點擊 **「移除」**
-4. 再按照上面的步驟安裝 v4.0
+## Project layout
 
----
+Content scripts share a single isolated world and are loaded in the order declared in `manifest.json`. That order is the only dependency mechanism available: each module reads the handles of its dependencies at top level, so a module listed too early observes `undefined`.
 
-## 💡 技術說明
+| File | Responsibility |
+| --- | --- |
+| `config.js` | Constants and internal flags. Zero dependencies; also loaded by `popup.html`. |
+| `logger.js` | Level-based console output. Each channel is bound either to the console or to a no-op at load time. |
+| `translation.js` | Word lookup popup and MyMemory request, gated by `TRANSLATION_ENABLED`. |
+| `drag.js` | Drag state machine. Position reads and writes are supplied as hooks. |
+| `subtitle-source.js` | Subtitle extraction from the native DOM, and the monitoring loop. |
+| `content.js` | Overlay lifecycle, style injection, message routing and fullscreen relocation. Root of the dependency tree. |
+| `quality_display.js` | Playback resolution indicator. |
+| `popup.html`, `popup.js` | Toolbar popup. Loads `config.js` first, in a separate realm. |
 
-### 工作原理
-- 直接修改 Netflix 字幕容器 (`.player-timedtext-text-container`) 的樣式
-- 使用百分比定位 (`left%`, `bottom%`) 確保在不同螢幕大小下都能正常工作
-- 即時計算拖動距離並轉換為相對影片的百分比
+`AGENTS.md` and the per-file `*.AGENTS.md` documents record cross-file invariants and known traps; consult them before modifying the subtitle path.
 
-### 特色
-- 🎨 **優雅的視覺回饋** - hover 和 dragging 時的光暈效果
-- 🔒 **安全的範圍限制** - 字幕不會被拖出影片範圍
-- ⚡ **高效能** - 使用 CSS transitions 和原生 DOM API
-- 🐛 **豐富的 Debug 訊息** - Console 中提供詳細日誌
+The version string exists only in `manifest.json` and is obtained through `chrome.runtime.getManifest()`; no source file contains a version literal.
 
----
+## How it works
 
-## 📁 檔案結構
+The native subtitle container is hidden by CSS and its text is copied into a custom overlay element. Extraction walks the container child nodes and converts `<br>` elements into newline characters, which preserves multi-line cues. `innerText` cannot be used here: a hidden element produces no layout, so `innerText` degrades to `textContent` semantics and discards the line breaks.
 
-```
-netflix-subtitle-helper-v4/
-├── manifest.json       # 擴充功能設定
-├── content.js         # 核心功能 (字幕拖動)
-├── popup.html         # 彈出視窗 UI
-├── popup.js           # 彈出視窗邏輯 (單字翻譯)
-├── icon.png           # 擴充功能圖示
-└── README.md          # 本文件
-```
+The overlay is refreshed by a 30 ms polling loop combined with mutation observers. Redundant updates are suppressed by comparing against the previously rendered text, which prevents the DOM from being rebuilt while a text selection is in progress.
 
----
+## Permissions and privacy
 
-## 🎉 享受更好的 Netflix 觀影體驗!
+| Permission | Reason |
+| --- | --- |
+| `activeTab`, `storage` | Applying settings to the active tab and persisting them. |
+| `https://www.netflix.com/*` | Reading the native subtitle DOM and injecting the overlay. |
+| `https://api.mymemory.translated.net/*` | Word translation requests. |
 
-現在你可以自由調整字幕位置,不再有惱人的紅圈阻擋視線!
+Only the double-clicked word is sent to the MyMemory API, and only while `TRANSLATION_ENABLED` is true. No other data leaves the browser; settings are held exclusively in `chrome.storage.sync`.
+
+## License
+
+Released under the MIT License. See [LICENSE](LICENSE).

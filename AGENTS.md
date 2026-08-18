@@ -64,7 +64,7 @@ Chrome/Edge MV3 擴充：以自製 overlay 取代 Netflix 原生字幕，提供�
 
 7. **`quality_display.js` 自行處理 SPA 換頁，字幕子系統不處理** — 前者以 MutationObserver 監看 `location.href` 變化並 cleanup／重建；後者僅在載入時輪詢一次播放器容器。跨影片行為異常時，兩者的排查路徑不同。要補字幕子系統的換頁 cleanup 時，入口是 `subtitle-source.js` 的 `stop()`（已提供，目前無呼叫端），另須一併處理去重鍵殘留，見 [`subtitle-source.js.AGENTS.md`](subtitle-source.js.AGENTS.md)。
 
-8. **版本號唯一來源為 `manifest.json` 的 `version`** — 其餘一律於執行期取自 `chrome.runtime.getManifest().version`，集中於 `config.js` 求值一次後以 `CONFIG.VERSION` 匯出（字串，不含前綴 `v`，由使用端自行補上）。`.js` 與 `.html` 不得再出現版本字面值，註解亦然——此處歷來必然腐化（曾出現 manifest 為 6.4 而 `content.js` 自稱 6.3；`popup.js` 檔頭一度停在 6.1）。驗證：`grep -rn "v[0-9]\+\.[0-9]" --include=*.js --include=*.html .` 應零命中（`content.js.backup` 未被 `manifest.json` 載入，不在此列）。`README.md` / `QUICKSTART.md` 的版本字樣為安裝說明與更新紀錄，屬另一議題，不受此條約束。
+8. **版本號唯一來源為 `manifest.json` 的 `version`** — 其餘一律於執行期取自 `chrome.runtime.getManifest().version`，集中於 `config.js` 求值一次後以 `CONFIG.VERSION` 匯出（字串，不含前綴 `v`，由使用端自行補上）。`.js` 與 `.html` 不得再出現版本字面值，註解亦然——此處歷來必然腐化（曾出現 manifest 為 6.4 而 `content.js` 自稱 6.3；`popup.js` 檔頭一度停在 6.1）。驗證：`grep -rn "v[0-9]\+\.[0-9]" --include=*.js --include=*.html .` 應零命中（`content.js.backup` 未被 `manifest.json` 載入，不在此列）。`README.md` 亦不標示版本號（安裝說明與版本解耦，且不記載更新紀錄），故文件端無版本字樣需同步維護。
 
 ---
 
