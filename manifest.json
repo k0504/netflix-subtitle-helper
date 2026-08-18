@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Netflix Subtitle Helper",
+  "version": "6.7",
+  "description": "Freely drag and resize Netflix subtitles, translate words with a click, and show the current playback quality",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.netflix.com/*",
+    "https://api.mymemory.translated.net/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.netflix.com/*"],
+      "js": ["config.js", "logger.js", "translation.js", "drag.js", "subtitle-source.js", "content.js", "quality_display.js"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ]
+}
