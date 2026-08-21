@@ -1,5 +1,7 @@
 # Netflix Subtitle Helper
 
+English | [繁體中文](README.zh-TW.md)
+
 A Chrome / Edge extension (Manifest V3) that hides the native Netflix subtitle layer and renders subtitles in a custom overlay, so they can be repositioned, resized, selected as text and translated word by word. The current playback resolution is also displayed beneath the video title.
 
 ## Features

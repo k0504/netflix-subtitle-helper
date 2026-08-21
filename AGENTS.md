@@ -66,6 +66,8 @@ Chrome/Edge MV3 擴充：以自製 overlay 取代 Netflix 原生字幕，提供�
 
 8. **版本號唯一來源為 `manifest.json` 的 `version`** — 其餘一律於執行期取自 `chrome.runtime.getManifest().version`，集中於 `config.js` 求值一次後以 `CONFIG.VERSION` 匯出（字串，不含前綴 `v`，由使用端自行補上）。`.js` 與 `.html` 不得再出現版本字面值，註解亦然——此處歷來必然腐化（曾出現 manifest 為 6.4 而 `content.js` 自稱 6.3；`popup.js` 檔頭一度停在 6.1）。驗證：`grep -rn "v[0-9]\+\.[0-9]" --include=*.js --include=*.html .` 應零命中（`content.js.backup` 未被 `manifest.json` 載入，不在此列）。`README.md` 亦不標示版本號（安裝說明與版本解耦，且不記載更新紀錄），故文件端無版本字樣需同步維護。
 
+9. **README 為雙語鏡像，兩份必須同 commit 同步** — `README.md`（英文）與 `README.zh-TW.md`（繁體中文）章節結構、表格列數與內容一一對應，任一份的功能表、旗標表、專案結構表或權限表變動時，另一份須於同一 commit 一併修改。兩份檔案開頭各有一行語言切換連結（英文版指向中文版，反之亦然），新增其他語系時須同步更新既有各版本的該行。
+
 ---
 
 ## 欲修改 X 應讀何處
@@ -83,6 +85,7 @@ Chrome/Edge MV3 擴充：以自製 overlay 取代 Netflix 原生字幕，提供�
 | 新增一個持久化設定項 | `config.js` 的 `DEFAULTS` 加一個 key 即完成讀取與落盤（`content.js` 全由該物件衍生，無須同步修改）；UI 控制項另見下方「新增 popup 控制項」 |
 | 換翻譯 API 或語言對 | `translation.js:15-16` 的 `API_ENDPOINT` / `LANG_PAIR`，並同步 `manifest.json` 的 `host_permissions` |
 | 新增 popup 控制項 | `popup.html` 加元素 → `popup.js` 綁事件並 `sendMessage` → `content.js:206` 的 `onMessage` 分支加 action |
+| 改 README 內容 | `README.md` 與 `README.zh-TW.md` 兩份鏡像同步修改；見上方「跨檔陷阱」第 9 條 |
 | 改版本號 | 只改 `manifest.json` 的 `version`，其餘自動連動；見上方「跨檔陷阱」第 8 條 |
 | 畫質標籤位置或分級 | `quality_display.js:42` 的 `getCurrentQuality()`、`quality_display.js:142` 的 `insertIntoControls()` |
 | 新增 content script | `manifest.json` 的 `js` 陣列，注意上方陷阱第 1、2 條的順序與 IIFE 約束 |
