@@ -44,41 +44,6 @@ Two flags are declared in [`config.js`](config.js). Both are read once at load t
 
 Default font size and position are declared in the same file as `DEFAULTS`, which also serves as the complete `chrome.storage.sync` schema.
 
-## Project layout
-
-Content scripts share a single isolated world and are loaded in the order declared in `manifest.json`. That order is the only dependency mechanism available: each module reads the handles of its dependencies at top level, so a module listed too early observes `undefined`.
-
-| File | Responsibility |
-| --- | --- |
-| `config.js` | Constants and internal flags. Zero dependencies; also loaded by `popup.html`. |
-| `logger.js` | Level-based console output. Each channel is bound either to the console or to a no-op at load time. |
-| `translation.js` | Word lookup popup and MyMemory request, gated by `TRANSLATION_ENABLED`. |
-| `drag.js` | Drag state machine. Position reads and writes are supplied as hooks. |
-| `subtitle-source.js` | Subtitle extraction from the native DOM, and the monitoring loop. |
-| `content.js` | Overlay lifecycle, style injection, message routing and fullscreen relocation. Root of the dependency tree. |
-| `quality_display.js` | Playback resolution indicator. |
-| `popup.html`, `popup.js` | Toolbar popup. Loads `config.js` first, in a separate realm. |
-
-`AGENTS.md` and the per-file `*.AGENTS.md` documents record cross-file invariants and known traps; consult them before modifying the subtitle path.
-
-The version string exists only in `manifest.json` and is obtained through `chrome.runtime.getManifest()`; no source file contains a version literal.
-
-## How it works
-
-The native subtitle container is hidden by CSS and its text is copied into a custom overlay element. Extraction walks the container child nodes and converts `<br>` elements into newline characters, which preserves multi-line cues. `innerText` cannot be used here: a hidden element produces no layout, so `innerText` degrades to `textContent` semantics and discards the line breaks.
-
-The overlay is refreshed by a 30 ms polling loop combined with mutation observers. Redundant updates are suppressed by comparing against the previously rendered text, which prevents the DOM from being rebuilt while a text selection is in progress.
-
-## Permissions and privacy
-
-| Permission | Reason |
-| --- | --- |
-| `activeTab`, `storage` | Applying settings to the active tab and persisting them. |
-| `https://www.netflix.com/*` | Reading the native subtitle DOM and injecting the overlay. |
-| `https://api.mymemory.translated.net/*` | Word translation requests. |
-
-Only the double-clicked word is sent to the MyMemory API, and only while `TRANSLATION_ENABLED` is true. No other data leaves the browser; settings are held exclusively in `chrome.storage.sync`.
-
 ## License
 
 Released under the MIT License. See [LICENSE](LICENSE).
