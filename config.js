@@ -45,7 +45,9 @@
         // 此約束是下列兩個慣用法的前提,破壞它會直接寫髒使用者的 storage:
         //   讀取:chrome.storage.sync.get(CONFIG.DEFAULTS, cb) —— Chrome 的 get(object) 語義即
         //         「以該物件作為預設值字典」,回呼取得的每個 key 必定有值,呼叫端不需 truthy 判斷。
-        //   寫入預設:chrome.storage.sync.set(CONFIG.DEFAULTS) —— popup.js 的重置分支一行完成。
+        //   寫入預設:chrome.storage.sync.set(patch) —— popup.js 的重置流程自本物件取出欲重置的
+        //         key 子集作為 patch;set() 為 merge 語義,未列入的 key 保持原值,故「只重置位置」
+        //         不會連帶重置字體大小。全部重置即以 Object.keys(DEFAULTS) 為子集。
         // 使用端不得寫成 const settings = CONFIG.DEFAULTS:該物件已凍結,'use strict' 下對其
         // 指派會拋 TypeError;正確做法是逐欄複製。
         DEFAULTS: Object.freeze({

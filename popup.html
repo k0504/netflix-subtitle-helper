@@ -111,6 +111,24 @@
     button:active {
       transform: scale(0.98);
     }
+
+    /* 次要按鈕:局部重置。與主要按鈕 (全部重置) 以填色/描線區分輕重,
+       避免三顆同色實心按鈕讓破壞性最大的那顆失去辨識度。 */
+    button.secondary {
+      background: white;
+      color: #e50914;
+      border: 1px solid #e50914;
+    }
+
+    button.secondary:hover {
+      background: #fdecee;
+    }
+
+    .button-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
     
     .info {
       font-size: 12px;
@@ -192,8 +210,12 @@
   <div class="section">
     <div class="section-title">Reset settings</div>
     <div class="control-group">
-      <button id="resetBtn">Reset subtitle position and size</button>
-      <div class="info">Restore all settings to their defaults</div>
+      <div class="button-stack">
+        <button id="resetPositionBtn" class="secondary">Reset position</button>
+        <button id="resetFontSizeBtn" class="secondary">Reset font size</button>
+        <button id="resetAllBtn">Reset all settings</button>
+      </div>
+      <div class="info">Each button restores only the settings it names; the others are left untouched.</div>
     </div>
   </div>
 

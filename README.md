@@ -31,7 +31,7 @@ The extension is not published on any store; load it as an unpacked extension.
 2. The native subtitle layer is hidden and replaced by the custom overlay.
 3. Hover the overlay to confirm it is interactive, then drag it to a new position. The position is persisted when the drag ends.
 4. Double-click a word to display its translation. Clicking anywhere outside the subtitle and the translation popup dismisses the popup.
-5. Open the toolbar popup to adjust the font size, or to reset position and size to their defaults.
+5. Open the toolbar popup to adjust the font size, or to reset settings to their defaults. Three separate buttons are provided: **Reset position**, **Reset font size** and **Reset all settings**. Each restores only the settings it names.
 
 ## Internal flags
 
